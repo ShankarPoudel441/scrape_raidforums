@@ -1,0 +1,96 @@
+A. Task Description:
+
+1. There is a hacking forum named raidforums.com
+Your task is to create an account there ( automated, if possible) and log in automatically, if possible.
+
+Note: No matter from where you log in, browsers in daily use like chrome, firefiox, brave OR using automated ones
+ like request , mechanicalsoup, webdrivers of chrome and firefox, or scrapy; while login it always prompts image
+ based captchas. Thus, automating the login is still an issue.
+
+2. Your code should scrape all the posts possible from one of the sections in that forum. Your code should also
+save the scraped data in a structured format to some database like MYSQL or PostgreSQL. The scraped fields
+could be Topic of post, date of scraping, date of posting, username who posted it etc.
+
+Note:
+    1. Tried with BeautifilSoup along with for its easiness and simplicity of use. But, as the site is JS heavy
+        and mechanicalsoup don't have mechanism to render JS, I searched to next library.
+    2. Tried requests-html library as it renders the site with JS.
+    3. Tried with selenium too.
+    4. Finally setteled for scrapy for it defined framework, ease of creating and using dynamic proxies
+        and user-agent.
+
+
+B. Step to run:
+    1. Clone the project
+        git clone https://github.com/ShankarPoudel441/scrape_raidforums.git
+    2. Open the project in terminal
+        cd //path-to-folder//
+    3. Go inside the raidforums folder inside the project folder
+        cd raidforums
+    4. call the command scrappy crawl to the name of the spider in the project; here it is raid
+        scrapy crawl raid
+    5. In the git folder, we have ignored the database file as it may changes as per every run of the project
+        in present state of the project as we are using sqlite3 in local and clearing all old data before adding
+        the new ones. So, the database 'raidforums_database.db' should appear after the spider crawls the desired
+        pages.
+
+C. Workings:
+    There are two scrapy projects inside this project viz: raidforums and postraid. Postraid is a part of
+    raidforums and it is used as a trial; raidforums is the major project. In the descriptions all 'project'
+    means raidforums project.
+    In the project file, there is folder called spiders along with init file, items, middleware, pipelines and
+    setting file. Spider folder contains the definations of the spiders that crawl in the sites and pages.
+
+    Spider folder:
+    It contains the init file of spider and definations of all the spioders we will use. We can add as many
+    spiders we want in this folder and inside each spider definations, we define its name, which is pointed
+    when we call the command 'scrapy crawl'.
+    Here, raid_forums.py is where a child class of scrapy.Spider is created and within it we define the
+    working of the spider. We define the parsers here and also yield data from the parser. Each yield is
+    then passed as per the defination in setting either to go to database or else.
+
+
+    Items file:
+    It is the file where we define the scrapy field to yield. WE can simply yield anything as we want but for
+    large projects, we need to have properly managed definitions to return. Using these also helps to maintain
+    the structure of the data retrieved. To use the items classes we defined, we simply import the items file
+    and its classes, no need of any activations from settings as it is just the definitions of temporary variables
+    to use in the project.
+
+    Middleware file:
+    We use this file, if we need to add custom middlewares to the spider crawler. To activate the middleware
+    you need to activate spider middleware in settings.
+
+    Pipelines file:
+    It is the file where we define where the scrapped data goes after it is scrapped. We need to activate its
+    use in the settings file to use it.
+    In the project, a small sqlite3 database is created and the data is stores there. All the database creation,
+    connection, insertion and modification codes are done here.
+
+    Setting file:
+    We changes the settings of the spider actions from this file. Here, we can activate or deactivate middlewares
+    and pipelines. We can change the bots name, user_agents  and others. The major additions done are addition of
+    dynamic proxies and ip to help bypass the securities of the site we are scrapping.
+
+    WE used scrapy-user-agents library to enable dynamic user-agents during scrapping.
+    We also used scrapy-proxy-pool to dynamically change the proxy during the scrapping.
+    But, it is found that when we use dynamic proxies and user_agents, the site is always in defensice condtion
+    and the scraping is always issue and gives 403 status code.
+
+
+D. Issues and Improvements
+    1. Autologin:
+        No matter from where you log in, browsers in daily use like chrome, firefiox, brave OR using automated ones
+        like request , mechanicalsoup, webdrivers of chrome and firefox, or scrapy; while login it always prompts image
+        based captchas. Thus, automating the login is still an issue.
+    2. Response Ignoring and banning the IP address
+        When crawling multiple page to get informations of each posts, the sites finds out you are scrapping and
+        to prevent the overflow of requests to the site, it simply blocks your ip from accessing the site.
+    3. Furthur database design and creation of stable database
+        Database created is very simple and has just three tables. It is just to store the data of each cycle at
+        a time. So, one needs to design the database properly and store data permanently during multiple cycles
+        of scrapping.
+    4. Proper Api design to connect databse
+        The api to store data to database is basic to say the least. One needs to create proper mechanism to store
+        data to database. For eg: one needs to check the presence of the user in users table before adding user as
+        a new user.
